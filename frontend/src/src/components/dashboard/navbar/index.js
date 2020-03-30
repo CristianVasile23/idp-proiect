@@ -12,6 +12,10 @@ class Navbar extends React.Component {
         return (
             <div className="navbar">
 
+                <div className="left-nav-buttons">
+                    <p> MyWiki </p>
+                </div>
+
                 <div className="right-nav-buttons">
                     <div className="logout-button" onClick={this.props.logout}>
                         <FontAwesomeIcon icon={faSignOutAlt} />

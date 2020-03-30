@@ -1,13 +1,13 @@
 .login-menu {
     display: flex;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
 
     background-image: url("../../images/login.png");
     background-repeat: no-repeat;
     background-size: cover;
 
-    background-color: #cccccc;
+    background-color: #231f46;
 }
 
 .login-container {
@@ -25,6 +25,7 @@
     border-radius: 25px;
 
     background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(20px);
 }
 
 .login-label {
