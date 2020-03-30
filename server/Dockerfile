@@ -7,5 +7,5 @@ RUN pip install -U uuid
 
 COPY /src /server
 WORKDIR /server
-EXPOSE 7002
+EXPOSE 4000
 CMD ["python", "server.py"]
