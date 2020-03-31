@@ -85,7 +85,13 @@
     font-size: 16px;
 
     cursor: pointer;
+
+    transition: 0.25s ease-in-out;
 }
+.login-button:hover {
+    filter: brightness(0.75);
+}
+
 
 .login-button-label {
     display: inline;

@@ -13,7 +13,7 @@ class Navbar extends React.Component {
             <div className="navbar">
 
                 <div className="left-nav-buttons">
-                    <p> MyWiki </p>
+                    <p className="website-name"> MyWiki </p>
                 </div>
 
                 <div className="right-nav-buttons">
