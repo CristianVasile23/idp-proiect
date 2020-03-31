@@ -20,7 +20,6 @@ class App extends React.Component {
     }
 
     handleLogout() {
-        console.log("Cacat")
         this.setState({isLoggedIn: false})
     }
 

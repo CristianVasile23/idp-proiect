@@ -14,3 +14,15 @@
 
     border-radius: 25px;
 }
+
+.post-list-title {
+    font-size: 25px;
+    margin-top: 20px;
+}
+
+.no-posts-placeholder {
+    margin-top: auto;
+    margin-bottom: auto;
+
+    color: gray;
+}

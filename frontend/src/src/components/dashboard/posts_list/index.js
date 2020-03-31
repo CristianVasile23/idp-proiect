@@ -7,7 +7,9 @@ class PostsList extends React.Component {
         return (
             <div className="posts-list">
 
-                <p> Post lists </p>
+                <p className="post-list-title"> My Posts </p>
+
+                <p className="no-posts-placeholder"> No posts found. Try adding some! </p>
                 
             </div>
         );
