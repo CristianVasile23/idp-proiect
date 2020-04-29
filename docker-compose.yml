@@ -1,9 +1,10 @@
 version: '3.3'
 services:
     frontend:
-        image: cristianvasile23/idp-proiect:frontend
+        container_name: idp-frontend
         tty: true
         stdin_open: true
+        build: ./frontend
         ports: 
             - "3000:3000"
         links:
@@ -12,14 +13,39 @@ services:
             - idp_network
         
     server:
-        image: cristianvasile23/idp-proiect:server
+        container_name: ipd-server
         tty: true
         stdin_open: true
+        build: ./server
         ports:
             - "4000:4000"
+        depends_on:
+            - db
+        environment:
+            DB_URL: postgres://admin:password@db:5432/db
+            DB_USER: dbadmin
+            DB_PASS: temppass
+        networks:
+            - idp_network
+            
+    db:
+        container_name: idp-db
+        image: postgres:12.2-alpine
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER:-admin}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+            POSTGRES_DB: db
+        volumes:
+            - idp-db-data:/data/postgres
+            - ./db_init/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+        ports:
+            - "5432:5432"
         networks:
             - idp_network
 
 networks: 
     idp_network:
         driver : bridge
+
+volumes:
+    idp-db-data: {}

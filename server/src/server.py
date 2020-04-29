@@ -38,6 +38,16 @@ def login():
 		return jsonify(msg = "Bad username or password"), 401
 
 
+@app.route("/add_news", methods = ['POST'])
+def add_news():
+	if not request.is_json:
+		return jsonify(msg = "Missing JSON in request"), 400
+
+	userData = request.get_json()
+
+	
+
+
 @app.route("/get_users")
 @jwt_required
 def get_users():

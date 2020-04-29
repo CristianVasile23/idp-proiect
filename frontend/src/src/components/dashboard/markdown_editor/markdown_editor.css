@@ -1,0 +1,30 @@
+.markdown-editor {
+    display: flex;
+    width: 100%;
+}
+
+.editor-wrapper {
+    width: 100%;
+    min-height: calc(80vh - 180px);
+}
+
+.finish-editing-button-wrapper {
+    display: flex;
+    justify-content: center;
+
+    margin-top: 20px;
+}
+
+.finish-editing-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 150px;
+    height: 30px;
+    background-color: #66308e;
+    transition: 0.25s ease-in-out;
+
+    margin-left: 10px;
+    margin-right: 10px;
+}
