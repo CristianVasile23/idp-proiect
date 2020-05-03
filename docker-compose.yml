@@ -13,7 +13,7 @@ services:
             - idp_network
         
     server:
-        container_name: ipd-server
+        container_name: idp-server
         tty: true
         stdin_open: true
         build: ./server
@@ -23,8 +23,9 @@ services:
             - db
         environment:
             DB_URL: postgres://admin:password@db:5432/db
-            DB_USER: dbadmin
-            DB_PASS: temppass
+            DB_USER: admin
+            DB_PASS: password
+            DB_NAME: db
         networks:
             - idp_network
             
@@ -36,7 +37,7 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
             POSTGRES_DB: db
         volumes:
-            - idp-db-data:/data/postgres
+            - idp-db-data:/var/lib/postgresql/data
             - ./db_init/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
         ports:
             - "5432:5432"

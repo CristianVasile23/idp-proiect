@@ -1,10 +1,21 @@
 import datetime
+import os
+import psycopg2
 
 from flask import Flask, request, jsonify
+
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
 )
+
+
+
+# Environment variables
+db_name = os.getenv("DB_NAME")
+db_user = os.getenv("DB_USER")
+db_pass = os.getenv("DB_PASS")
+
 
 
 app = Flask(__name__)
@@ -32,32 +43,179 @@ def login():
 
 		expires = datetime.timedelta(days=1)
 		access_token = create_access_token(identity=username, expires_delta=expires)
+
 		return jsonify(msg = "Login approved", access_token = access_token), 200
 
 	else:
 		return jsonify(msg = "Bad username or password"), 401
 
 
-@app.route("/add_news", methods = ['POST'])
-def add_news():
+@app.route("/add_post", methods = ['POST'])
+@jwt_required
+def add_post():
 	if not request.is_json:
 		return jsonify(msg = "Missing JSON in request"), 400
 
-	userData = request.get_json()
-
+	user = get_jwt_identity()
+	user_data = request.get_json()
 	
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
+
+	try:
+		cursor = conn.cursor()
+
+		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
+		user_id = cursor.fetchone()
+
+		cursor.execute("INSERT INTO posts_list (user_id, markdown_content) VALUES(%s, %s) RETURNING id", (user_id, user_data["markdown"],))
+		post_id = cursor.fetchone()
+
+		conn.commit()
+	except Exception as err:
+		print(err)
+
+		conn.rollback()
+		return jsonify(msg = "Failed to add posts"), 400
+	finally:
+		cursor.close()
+		conn.close()
+
+	return jsonify(msg = "Added post", post_id = post_id[0]), 200
+
+
+@app.route("/delete_post", methods = ['DELETE'])
+@jwt_required
+def delete_posts():
+	if not request.is_json:
+		return jsonify(msg = "Missing JSON in request"), 400
+
+	user = get_jwt_identity()
+	user_data = request.get_json()
+
+	post_id = user_data["post_id"]
+	
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
+
+	try:
+		cursor = conn.cursor()
+
+		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
+		user_id = cursor.fetchone()
+
+		# cursor.execute("INSERT INTO posts_list (user_id, markdown_content) VALUES(%s, %s) RETURNING id", (user_id, user_data["markdown"],))
+		# post_id = cursor.fetchone()
+
+		cursor.execute("DELETE FROM posts_list WHERE id = %s", (post_id,))
+
+		conn.commit()
+	except Exception as err:
+		print(err)
+
+		conn.rollback()
+		return jsonify(msg = "Failed to delete posts"), 400
+	finally:
+		cursor.close()
+		conn.close()
+
+	return jsonify(msg = "Deleted post"), 200
+
+
+
+@app.route("/update_post", methods = ['PUT'])
+@jwt_required
+def update_post():
+	if not request.is_json:
+		return jsonify(msg = "Missing JSON in request"), 400
+
+	user = get_jwt_identity()
+	user_data = request.get_json()
+
+	post_id = user_data["post_id"]
+	markdown = user_data["markdown"]
+	
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
+
+	try:
+		cursor = conn.cursor()
+
+		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
+		user_id = cursor.fetchone()
+
+		cursor.execute("UPDATE posts_list SET markdown_content = %s WHERE id = %s", (markdown, post_id,))
+
+		conn.commit()
+	except Exception as err:
+		print(err)
+
+		conn.rollback()
+		return jsonify(msg = "Failed to delete posts"), 400
+	finally:
+		cursor.close()
+		conn.close()
+
+	return jsonify(msg = "Deleted post"), 200
+
+
+
+@app.route("/get_posts/<user>")
+def get_posts(user=None):
+
+	post_array = []
+
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
+
+	try:
+		cursor = conn.cursor()
+
+		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
+
+		user_id = cursor.fetchone()
+
+		cursor.execute("SELECT id, markdown_content FROM posts_list WHERE user_id = %s ORDER BY time_created DESC", (user_id,))
+
+		posts = cursor.fetchall()
+
+		for row in posts:
+			post_id = row[0]
+			content = row[1]
+			# timestamp = datetime.datetime.timestamp(row[1])
+			# post_array.append((content, timestamp))
+			post_array.append((post_id, content))
+
+		conn.commit()
+		cursor.close()
+		conn.close()
+	except Exception as err:
+		print(err)
+
+		conn.rollback()
+		return jsonify(msg = "Failed to get posts"), 400
+
+	return jsonify(msg = "Found list of posts", array = post_array), 200
+
+
+
 
 
 @app.route("/get_users")
-@jwt_required
 def get_users():
 	return jsonify(msg = "Found list of users", array = ["Ana", "Andrei", "Alin"] ), 200
-
-
-@app.route("/get_posts")
-@jwt_required
-def get_posts():
-	return jsonify(msg = "Found list of posts", array = ["Post1", "Post2", "Post3"] ), 200
 
 
 @app.route("/verify_login", methods = ['GET'])

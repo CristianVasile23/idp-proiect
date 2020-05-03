@@ -9,7 +9,6 @@ class ButtonsList extends React.Component {
         return (
             <div className="buttons-list-wrapper">
                 <div className="buttons-list">
-
                     <div className="button-element" onClick={this.props.onAdd}>
                         <FontAwesomeIcon icon={faPlus}/>
                     </div>

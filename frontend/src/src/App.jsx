@@ -25,9 +25,8 @@ class App extends React.Component {
         const token = localStorage.getItem('access_token');
 
         if (!token) {
+            this.setState({checkedLoginStatus: true})
             return
-        } else {
-            console.log(token)
         }
 
         const reqOptions = {
@@ -47,6 +46,7 @@ class App extends React.Component {
             })
             .then(content => {
                 if (content) {
+                    console.log(content.logged_in_as)
                     this.setState({checkedLoginStatus: true, isLoggedIn: true})
                 }
             })
@@ -70,13 +70,15 @@ class App extends React.Component {
             .then(content => {
                 if (content) {
                     localStorage.setItem('access_token', content.access_token);
-                    this.setState({isLoggedIn: true})
+                    localStorage.setItem('username', username);
+                    this.setState({isLoggedIn: true});
                 }
             })
     }
 
     handleLogout() {
         localStorage.removeItem('access_token');
+        localStorage.removeItem('username');
         this.setState({isLoggedIn: false})
     }
 

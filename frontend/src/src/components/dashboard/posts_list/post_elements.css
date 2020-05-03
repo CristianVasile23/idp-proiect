@@ -1,0 +1,24 @@
+.post-element-wrapper::before {
+    content: "";
+    display: block;
+    height: 2px;
+    background: rgba(100, 100, 100, 0.4);
+    width: 95%;
+
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+.post-element-wrapper {
+    margin-top: 10px;
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.post-element-wrapper p {
+    width: 90%;
+}

@@ -30,7 +30,7 @@ class MarkdownEditor extends React.Component {
         }
 
         if (editConfirmed) {
-            setTimeout(() => this.props.toggleEditor(), 500);
+            setTimeout(() => this.props.submitEdit(markdown), 500);
         } else {
             setTimeout(() => this.props.toggleEditor(), 500);
         }
@@ -44,7 +44,7 @@ class MarkdownEditor extends React.Component {
                 <div className="editor-wrapper">
                     <MdEditor
                         ref={node => (this.mdEditor = node || undefined)}
-                        value=""
+                        value={this.props.editorValue}
                         renderHTML={(text) => this.mdParser.render(text)}
                     />
                 </div>
