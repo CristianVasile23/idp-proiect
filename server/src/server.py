@@ -2,6 +2,8 @@ import datetime
 import os
 import psycopg2
 
+import hashlib
+
 from flask import Flask, request, jsonify
 
 from flask_jwt_extended import (
@@ -9,20 +11,22 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-
-
 # Environment variables
 db_name = os.getenv("DB_NAME")
 db_user = os.getenv("DB_USER")
 db_pass = os.getenv("DB_PASS")
 
-
+# Hash secret
+secret = "my_hash_secret"
 
 app = Flask(__name__)
 
 # Setup the Flask-JWT-Extended extension
 app.config['JWT_SECRET_KEY'] = 'idp-secret-key'
 jwt = JWTManager(app)
+
+
+
 
 
 @app.route("/")
@@ -37,9 +41,30 @@ def login():
 	userData = request.get_json()
 
 	username = userData["username"]
-	password = userData["password"]
+	password = hashlib.md5((userData["password"] + secret).encode()).hexdigest()
 
-	if username == "admin" and password == "admin":
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
+
+	try:
+		cursor = conn.cursor()
+
+		cursor.execute("SELECT passwd FROM users WHERE username = %s", (username,))
+		user_password = cursor.fetchone()[0]
+
+		conn.commit()
+	except Exception as err:
+		print(err)
+		conn.rollback()
+		return jsonify(msg = "Failed to get password"), 400
+	finally:
+		cursor.close()
+		conn.close()
+
+	if password == user_password:
 
 		expires = datetime.timedelta(days=1)
 		access_token = create_access_token(identity=username, expires_delta=expires)
@@ -71,7 +96,7 @@ def add_post():
 		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
 		user_id = cursor.fetchone()
 
-		cursor.execute("INSERT INTO posts_list (user_id, markdown_content) VALUES(%s, %s) RETURNING id", (user_id, user_data["markdown"],))
+		cursor.callproc('add_post',[user_id, user_data["markdown"]])
 		post_id = cursor.fetchone()
 
 		conn.commit()
@@ -107,13 +132,11 @@ def delete_posts():
 	try:
 		cursor = conn.cursor()
 
-		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
-		user_id = cursor.fetchone()
+		cursor.callproc('delete_post',[post_id,])
+		ret_val = cursor.fetchone()
 
-		# cursor.execute("INSERT INTO posts_list (user_id, markdown_content) VALUES(%s, %s) RETURNING id", (user_id, user_data["markdown"],))
-		# post_id = cursor.fetchone()
-
-		cursor.execute("DELETE FROM posts_list WHERE id = %s", (post_id,))
+		if not ret_val[0]:
+			raise Exception('delete post returned false instead of true')
 
 		conn.commit()
 	except Exception as err:
@@ -150,10 +173,11 @@ def update_post():
 	try:
 		cursor = conn.cursor()
 
-		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
-		user_id = cursor.fetchone()
+		cursor.callproc('update_post',[post_id, markdown])
+		ret_val = cursor.fetchone()
 
-		cursor.execute("UPDATE posts_list SET markdown_content = %s WHERE id = %s", (markdown, post_id,))
+		if not ret_val[0]:
+			raise Exception('edit post returned false instead of true')
 
 		conn.commit()
 	except Exception as err:
@@ -179,43 +203,67 @@ def get_posts(user=None):
 	except OperationalError as err:
 		print(err)
 		return jsonify(msg = "Failed to connect to DB"), 400
-
+	
 	try:
 		cursor = conn.cursor()
 
 		cursor.execute("SELECT id FROM users WHERE username = %s", (user,))
-
 		user_id = cursor.fetchone()
 
-		cursor.execute("SELECT id, markdown_content FROM posts_list WHERE user_id = %s ORDER BY time_created DESC", (user_id,))
-
+		cursor.callproc('get_posts',[user_id,])
 		posts = cursor.fetchall()
 
 		for row in posts:
 			post_id = row[0]
 			content = row[1]
-			# timestamp = datetime.datetime.timestamp(row[1])
-			# post_array.append((content, timestamp))
 			post_array.append((post_id, content))
 
 		conn.commit()
-		cursor.close()
-		conn.close()
 	except Exception as err:
 		print(err)
-
 		conn.rollback()
 		return jsonify(msg = "Failed to get posts"), 400
+	finally:
+		cursor.close()
+		conn.close()
 
 	return jsonify(msg = "Found list of posts", array = post_array), 200
 
 
 
+@app.route("/add_user", methods = ['POST'])
+def add_user():
+	if not request.is_json:
+		return jsonify(msg = "Missing JSON in request"), 400
+
+	user_data = request.get_json()
+	username = user_data["username"]
+	email = user_data["email"]
+	password = hashlib.md5((user_data["password"] + secret).encode()).hexdigest()
+
+	try:
+		conn = psycopg2.connect(host="db", database=db_name, user=db_user, password=db_pass)
+	except OperationalError as err:
+		print(err)
+		return jsonify(msg = "Failed to connect to DB"), 400
 
 
-@app.route("/get_users")
-def get_users():
-	return jsonify(msg = "Found list of users", array = ["Ana", "Andrei", "Alin"] ), 200
+
+	try:
+		cursor = conn.cursor()
+		cursor.callproc('add_user',[username, email, password])
+		user_id = cursor.fetchone()
+
+		conn.commit()
+	except Exception as err:
+		print(err)
+		conn.rollback()
+		return jsonify(msg = "Failed to add user"), 400
+	finally:
+		cursor.close()
+		conn.close()
+	
+	return jsonify(msg = "Added user"), 200
 
 
 @app.route("/verify_login", methods = ['GET'])
@@ -223,7 +271,6 @@ def get_users():
 def verify_login():
 	user = get_jwt_identity()
 	return jsonify(logged_in_as = user), 200
-
 
 
 if __name__ == "__main__":

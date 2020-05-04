@@ -1,0 +1,21 @@
+.registration-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+
+    height: 300px;
+    width: 400px;
+
+    margin: auto;
+
+    padding: 25px;
+
+    border-radius: 25px;
+
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(20px);
+}
+
+.registration-label {
+    margin-bottom: 20px;
+}

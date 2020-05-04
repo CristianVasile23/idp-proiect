@@ -6,4 +6,5 @@
 .editor-wrapper {
     width: 100%;
     height: calc(80vh - 180px);
+    margin-left: 56px;
 }

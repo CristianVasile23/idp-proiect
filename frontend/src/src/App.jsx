@@ -82,13 +82,46 @@ class App extends React.Component {
         this.setState({isLoggedIn: false})
     }
 
+    submitRegistration(username, email, password) {
+        // console.log("Registration submitted " + username + " " + email + " " + password)
+        const reqOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({username: username, email: email, password: password})
+        }
+
+        fetch("/add_user", reqOptions)
+        .then(res => {
+            if (res.status !== 200) {
+                throw new Error(res.status.toString())
+            }
+
+            return res.json()
+        })
+        .then(content => {
+            return true
+        })
+        .catch(function(error) {
+            console.log(error)
+            return false
+        })
+    }
+
+
     render() {
         return (
             <div className="App">
                 <div>
                     {this.state.isLoggedIn
-                        ? <Dashboard action={this.handleLogout}/>
-                        : <LoginMenu action={this.submitLogin}/>
+                        ?
+                            <Dashboard action={this.handleLogout}/>
+                        :
+                            <LoginMenu
+                                action={this.submitLogin}
+                                submitRegistration={(username, email, password) => this.submitRegistration(username, email, password)}
+                            />
                     }
                 </div>
             </div>

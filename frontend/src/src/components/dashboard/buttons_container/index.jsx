@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Font awesome
-import { faCog, faList, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 class ButtonsList extends React.Component {
@@ -11,10 +11,6 @@ class ButtonsList extends React.Component {
                 <div className="buttons-list">
                     <div className="button-element" onClick={this.props.onAdd}>
                         <FontAwesomeIcon icon={faPlus}/>
-                    </div>
-
-                    <div className="button-element">
-                        <FontAwesomeIcon icon={faList}/>  
                     </div>
 
                     <div className="button-element">

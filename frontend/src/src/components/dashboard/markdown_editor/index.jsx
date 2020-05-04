@@ -36,6 +36,16 @@ class MarkdownEditor extends React.Component {
         }
     }
 
+    handleImageUpload(file) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = data => {
+                resolve(data.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+      };
+
     render() {
         return(
             <div className="markdown-editor">
@@ -46,6 +56,7 @@ class MarkdownEditor extends React.Component {
                         ref={node => (this.mdEditor = node || undefined)}
                         value={this.props.editorValue}
                         renderHTML={(text) => this.mdParser.render(text)}
+                        onImageUpload={(file) => this.handleImageUpload(file)}
                     />
                 </div>
             </div>

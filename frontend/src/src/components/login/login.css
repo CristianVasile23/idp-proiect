@@ -59,8 +59,6 @@
     color: rgba(255, 255, 255, 0.75);
 }
 
-
-
 .login-button-wrapper {
     display: flex;
     justify-content: center;
@@ -70,7 +68,7 @@
     width: 120px;
     height: 50px;
 
-    margin-top: 25px;
+    margin-top: 15px;
 
     background-color: rgb(76, 175, 79);
     border: none;
@@ -97,4 +95,20 @@
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
+}
+
+.registration-text {
+    font-size: 12px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.registration-button {
+    margin-left: 3px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: 0.25s ease-in-out;
+}
+.registration-button:hover {
+    color: rgb(76, 175, 79);
 }

@@ -1,13 +1,15 @@
--- \c postgres;
+\c postgres;
 
--- DROP DATABASE IF EXISTS db;
--- CREATE DATABASE db;
+DROP DATABASE IF EXISTS db;
+CREATE DATABASE db;
 
 \c db;
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(40) UNIQUE NOT NULL
+    username VARCHAR(40) UNIQUE NOT NULL,
+    passwd TEXT NOT NULL,
+    email VARCHAR(80) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posts_list (
@@ -16,5 +18,3 @@ CREATE TABLE IF NOT EXISTS posts_list (
     markdown_content TEXT NOT NULL,
     time_created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO users(username) VALUES('admin');

@@ -125,8 +125,6 @@ class Dashboard extends React.Component {
     }
 
     editPost(id, markdown) {
-        console.log("Am editat bine rau mai " + id)
-        
         const token = localStorage.getItem('access_token');
 
         const requestOptions = {
