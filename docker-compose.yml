@@ -1,22 +1,18 @@
 version: '3.3'
 services:
     frontend:
-        container_name: idp-frontend
-        # tty: true
+        # container_name: idp-frontend
+        image: cristianvasile23/idp-proiect:frontend
         stdin_open: true
-        build: ./frontend
         ports: 
-            - "3002:3000"
-        links:
-            - server
-        networks:
-            - idp_network
+            - "3000:3000"
+        # networks:
+        #     - idp_network
         
     server:
-        container_name: idp-server
-        # tty: true
+        # container_name: idp-server
+        image: cristianvasile23/idp-proiect:server
         stdin_open: true
-        build: ./server
         ports:
             - "4000:4000"
         depends_on:
@@ -26,11 +22,11 @@ services:
             DB_USER: admin
             DB_PASS: password
             DB_NAME: db
-        networks:
-            - idp_network
+        # networks:
+        #     - idp_network
             
     db:
-        container_name: idp-db
+        # container_name: idp-db
         image: postgres:12.2-alpine
         environment:
             POSTGRES_USER: ${POSTGRES_USER:-admin}
@@ -42,21 +38,21 @@ services:
             - ./db_init/procedures.sql:/docker-entrypoint-initdb.d/2-procedures.sql
         ports:
             - "5432:5432"
-        networks:
-            - idp_network
+        # networks:
+        #     - idp_network
 
     prometheus:
-        container_name: idp-prometheus
+        # container_name: idp-prometheus
         image: prom/prometheus:v2.2.1
         volumes:
             - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
         ports:
             - 9090:9090
-        networks:
-            - idp_network
+        # networks:
+        #     - idp_network
 
     grafana:
-        container_name: idp-grafana
+        # container_name: idp-grafana
         image: grafana/grafana:5.1.0
         volumes:
             - ./grafana/config.ini:/etc/grafana/grafana.ini
@@ -64,13 +60,13 @@ services:
             - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
             - ./grafana/dashboards:/var/lib/grafana/dashboards
         ports:
-            - 3000:3000
-        networks:
-            - idp_network
+            - 2000:3000
+#         networks:
+#             - idp_network
 
-networks: 
-    idp_network:
-        driver : bridge
+# networks: 
+#     idp_network:
+#         driver : bridge
 
 volumes:
     idp-db-data: {}
