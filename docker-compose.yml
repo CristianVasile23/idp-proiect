@@ -2,11 +2,11 @@ version: '3.3'
 services:
     frontend:
         container_name: idp-frontend
-        tty: true
+        # tty: true
         stdin_open: true
         build: ./frontend
         ports: 
-            - "3000:3000"
+            - "3002:3000"
         links:
             - server
         networks:
@@ -14,7 +14,7 @@ services:
         
     server:
         container_name: idp-server
-        tty: true
+        # tty: true
         stdin_open: true
         build: ./server
         ports:
@@ -42,6 +42,29 @@ services:
             - ./db_init/procedures.sql:/docker-entrypoint-initdb.d/2-procedures.sql
         ports:
             - "5432:5432"
+        networks:
+            - idp_network
+
+    prometheus:
+        container_name: idp-prometheus
+        image: prom/prometheus:v2.2.1
+        volumes:
+            - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
+        ports:
+            - 9090:9090
+        networks:
+            - idp_network
+
+    grafana:
+        container_name: idp-grafana
+        image: grafana/grafana:5.1.0
+        volumes:
+            - ./grafana/config.ini:/etc/grafana/grafana.ini
+            - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
+            - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
+            - ./grafana/dashboards:/var/lib/grafana/dashboards
+        ports:
+            - 3000:3000
         networks:
             - idp_network
 

@@ -7,10 +7,10 @@ RUN pip install Flask
 RUN pip install mysql-connector
 RUN pip install uuid
 RUN pip install psycopg2
-
+RUN pip install prometheus_flask_exporter
 RUN pip install flask-jwt-extended
 
 COPY /src /server
 WORKDIR /server
-EXPOSE 4000
+
 CMD ["python", "server.py"]

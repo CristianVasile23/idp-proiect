@@ -178,6 +178,7 @@ class Login extends React.Component {
                                     >
                                         here
                                     </span>
+                                    .
                                 </p>
 
                                 <div className="login-button-wrapper">

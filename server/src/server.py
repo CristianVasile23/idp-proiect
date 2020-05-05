@@ -4,6 +4,8 @@ import psycopg2
 
 import hashlib
 
+from prometheus_flask_exporter import PrometheusMetrics
+
 from flask import Flask, request, jsonify
 
 from flask_jwt_extended import (
@@ -25,8 +27,9 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'idp-secret-key'
 jwt = JWTManager(app)
 
-
-
+# Prometheus metrics
+metrics = PrometheusMetrics(app)
+metrics.info('app_info', 'Application info', version='1.0.3')
 
 
 @app.route("/")
@@ -246,8 +249,6 @@ def add_user():
 	except OperationalError as err:
 		print(err)
 		return jsonify(msg = "Failed to connect to DB"), 400
-
-
 
 	try:
 		cursor = conn.cursor()

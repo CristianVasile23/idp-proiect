@@ -8,3 +8,56 @@
     height: calc(80vh - 180px);
     margin-left: 56px;
 }
+
+/* Styling the editor */
+.rc-md-editor {
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.rc-md-navigation {
+    background: none;
+}
+
+.rc-md-editor .editor-container .sec-md .input {
+    background: none;
+    color: white;
+}
+
+.custom-html-style {
+    color: white;
+}
+
+.custom-html-style a {
+    color: rgb(76, 175, 79);
+    transition: color 0.25s ease-in-out;
+}
+.custom-html-style a:hover {
+    color: rgb(44, 82, 45);
+}
+
+.custom-html-style blockquote {
+    background: rgba(35, 35, 35, .5);
+    color: rgb(200, 200, 200);
+    border-left: 5px solid rgb(76, 175, 79);
+    font-style: italic;
+}
+
+.custom-html-style code, .custom-html-style pre {
+    background: rgba(35, 35, 35, .5);
+    background-color: rgba(35, 35, 35);
+}
+
+.custom-html-style table th {
+    background-color: rgba(35, 35, 35);
+}
+
+
+.rc-md-navigation .button-wrap .button {
+    color: white;
+}
+
+.rc-md-navigation .button-wrap .button:hover {
+    color: rgb(76, 175, 79);
+}
